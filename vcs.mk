@@ -1,4 +1,13 @@
+HELP_COMPILATION_VARIABLES += \
+"   FSDB=1                 = enable fsdb support for compiling vcs verilog simulator"
+
+ifeq ($(FSDB),1)
+WAVEFORM_FLAG=+fsdbfile=$(sim_out_name).fsdb
+VCS_FSDB_OPT=+define+FSDB=1
+else
 WAVEFORM_FLAG=+vcdplusfile=$(sim_out_name).vpd
+VCS_FSDB_OPT=
+endif
 
 # If ntb_random_seed unspecified, vcs uses 1 as constant seed.
 # Set ntb_random_seed_automatic to actually get a random seed
@@ -41,6 +50,7 @@ VCS_NONCC_OPTS = \
 	-sverilog +systemverilogext+.sv+.svi+.svh+.svt -assert svaext +libext+.sv \
 	+v2k +verilog2001ext+.v95+.vt+.vp +libext+.v \
 	-debug_pp \
+	-debug_access+all -lca -kdb \
 	+incdir+$(build_dir) \
 	$(sim_vsrcs)
 
@@ -53,4 +63,6 @@ PREPROC_DEFINES = \
 	+define+RANDOMIZE_MEM_INIT \
 	+define+RANDOMIZE_REG_INIT \
 	+define+RANDOMIZE_GARBAGE_ASSIGN \
-	+define+RANDOMIZE_INVALID_ASSIGN
+	+define+RANDOMIZE_INVALID_ASSIGN \
+	$(VCS_FSDB_OPT)
+

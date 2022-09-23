@@ -82,8 +82,18 @@ endif
 #########################################################################################
 # create list of simulation file inputs
 #########################################################################################
+ifneq ($(CIRCT),1)
 $(sim_files): $(call lookup_srcs,$(base_dir)/generators/utilities/src/main/scala,scala) $(SCALA_BUILDTOOL_DEPS)
 	$(call run_scala_main,utilities,utilities.GenerateSimFiles,-td $(build_dir) -sim $(sim_name))
+endif
+
+#########################################################################################
+# copy over bootrom files
+#########################################################################################
+ifeq ($(CIRCT),1)
+$(build_dir):
+	mkdir -p $@
+endif
 
 #########################################################################################
 # create firrtl file rule and variables
@@ -119,8 +129,15 @@ HARNESS_TARGETS = $(HARNESS_FILE) $(HARNESS_SMEMS_CONF) $(HARNESS_ANNO) $(HARNES
 $(TOP_TARGETS) $(HARNESS_TARGETS): firrtl_temp
 	@echo "" > /dev/null
 
+ifeq ($(CIRCT),1)
+firrtl_temp: $(FIRRTL_FILE) $(ANNO_FILE) $(VLOG_SOURCES)
+	firtool  --annotation-file=$(ANNO_FILE) --disable-annotation-classless --disable-annotation-unknown --lowering-options=disallowPackedArrays,emittedLineLength=8192,noAlwaysComb,disallowLocalVariables --infer-rw --repl-seq-mem --repl-seq-mem-circuit=$(TOP) --repl-seq-mem-file=$(TOP_SMEMS_CONF) --verilog -o $(TOP_FILE) $(FIRRTL_FILE) && touch $(sim_top_blackboxes)
+	sed -i 's/$$/ /g' $(TOP_SMEMS_CONF)
+else
 firrtl_temp: $(FIRRTL_FILE) $(ANNO_FILE) $(VLOG_SOURCES)
 	$(call run_scala_main,tapeout,barstools.tapeout.transforms.GenerateTopAndHarness,-o $(TOP_FILE) -tho $(HARNESS_FILE) -i $(FIRRTL_FILE) --syn-top $(TOP) --harness-top $(VLOG_MODEL) -faf $(ANNO_FILE) -tsaof $(TOP_ANNO) -tdf $(sim_top_blackboxes) -tsf $(TOP_FIR) -thaof $(HARNESS_ANNO) -hdf $(sim_harness_blackboxes) -thf $(HARNESS_FIR) $(REPL_SEQ_MEM) $(HARNESS_CONF_FLAGS) -td $(build_dir) -ll $(FIRRTL_LOGLEVEL)) && touch $(sim_top_blackboxes) $(sim_harness_blackboxes)
+endif
+
 # DOC include end: FirrtlCompiler
 
 # This file is for simulation only. VLSI flows should replace this file with one containing hard SRAMs
@@ -143,8 +160,13 @@ harness_macro_temp: $(HARNESS_SMEMS_CONF) | top_macro_temp
 ########################################################################################
 # remove duplicate files and headers in list of simulation file inputs
 ########################################################################################
+ifeq ($(CIRCT),1)
+$(sim_common_files): $(sim_files) $(sim_top_blackboxes)
+	awk '{print $1;}' $^ | sort -u | grep -v '.*\.\(svh\|h\)$$' > $@
+else
 $(sim_common_files): $(sim_files) $(sim_top_blackboxes) $(sim_harness_blackboxes)
 	awk '{print $1;}' $^ | sort -u | grep -v '.*\.\(svh\|h\)$$' > $@
+endif
 
 #########################################################################################
 # helper rule to just make verilog files

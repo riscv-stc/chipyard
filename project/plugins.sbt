@@ -13,3 +13,9 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.21")
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.6.1")
 addSbtPlugin("com.eed3si9n" % "sbt-sriracha" % "0.1.0")
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.5" )
+resolvers ++= Seq(
+  "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases/",
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+)
+
+addSbtPlugin("net.ceedubs" %% "sbt-ctags" % "0.3.0")

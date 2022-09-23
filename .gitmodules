@@ -1,9 +1,9 @@
 [submodule "rocket-chip"]
 	path = generators/rocket-chip
-	url = https://github.com/ucb-bar/rocket-chip.git
+	url = https://github.com/riscv-stc/rocket-chip.git
 [submodule "testchipip"]
 	path = generators/testchipip
-	url = https://github.com/ucb-bar/testchipip.git
+	url = https://github.com/riscv-stc/testchipip.git
 [submodule "barstools"]
 	path = tools/barstools
 	url = https://github.com/ucb-bar/barstools.git
@@ -18,7 +18,7 @@
 	url = https://github.com/ucb-bar/riscv-torture.git
 [submodule "generators/boom"]
 	path = generators/boom
-	url = https://github.com/riscv-boom/riscv-boom.git
+	url = https://github.com/riscv-stc/riscv-boom.git
 [submodule "generators/sifive-blocks"]
 	path = generators/sifive-blocks
 	url = https://github.com/sifive/sifive-blocks.git
@@ -115,7 +115,7 @@
 	url = https://github.com/firesim/FireMarshal.git
 [submodule "generators/cva6"]
 	path = generators/cva6
-	url = https://github.com/ucb-bar/cva6-wrapper.git
+	url = https://github.com/riscv-stc/cva6-wrapper.git
 [submodule "tools/DRAMSim2"]
 	path = tools/DRAMSim2
 	url = https://github.com/firesim/DRAMSim2.git
@@ -130,7 +130,11 @@
 	url = https://github.com/riscv-boom/dromajo.git
 [submodule "generators/riscv-sodor"]
 	path = generators/riscv-sodor
-	url = https://github.com/ucb-bar/riscv-sodor.git
+	url = https://github.com/riscv-stc/riscv-sodor.git
 [submodule "fpga/fpga-shells"]
 	path = fpga/fpga-shells
 	url = https://github.com/sifive/fpga-shells.git
+[submodule "tools/espresso-logic"]
+	path = tools/espresso-logic
+	url = https://github.com/classabbyamp/espresso-logic
+	branch = master

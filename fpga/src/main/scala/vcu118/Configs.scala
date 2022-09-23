@@ -64,6 +64,11 @@ class BoomVCU118Config extends Config(
   new WithVCU118Tweaks ++
   new chipyard.MegaBoomConfig)
 
+class StcBoomVCU118Config extends Config(
+  new WithFPGAFrequency(50) ++
+  new WithVCU118Tweaks ++
+  new chipyard.StcBoomConfig)
+
 class WithFPGAFrequency(MHz: Double) extends Config((site, here, up) => {
   case FPGAFrequencyKey => MHz
 })

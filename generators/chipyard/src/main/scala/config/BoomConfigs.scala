@@ -1,6 +1,7 @@
 package chipyard
 
-import freechips.rocketchip.config.{Config}
+import freechips.rocketchip.config.Config
+import freechips.rocketchip.subsystem.WithNBanks
 
 // ---------------------
 // BOOM Configs
@@ -16,6 +17,11 @@ class MediumBoomConfig extends Config(
 
 class LargeBoomConfig extends Config(
   new boom.common.WithNLargeBooms(1) ++                          // large boom config
+  new chipyard.config.AbstractConfig)
+
+
+class QuadLargeBoomConfig extends Config(
+  new boom.common.WithNLargeBooms(4) ++                          // 4 large boom config
   new chipyard.config.AbstractConfig)
 
 class MegaBoomConfig extends Config(
@@ -40,6 +46,15 @@ class LoopbackNICLargeBoomConfig extends Config(
 
 class DromajoBoomConfig extends Config(
   new chipyard.harness.WithSimDromajoBridge ++                   // attach Dromajo
-  new chipyard.config.WithTraceIO ++                             // enable the traceio
+  new chipyard.config.WithTraceIO ++     
   new boom.common.WithNSmallBooms(1) ++
   new chipyard.config.AbstractConfig)
+
+class StcBoomConfig extends Config(
+  new WithNBanks(8) ++
+  new boom.common.WithNStcBooms(1) ++                           // stc boom config
+  new chipyard.config.AbstractConfig)
+
+//class StcMatBoomConfig extends Config(
+ // new boom.common.WithNStcMatBooms(1) ++                           // stc boom config
+ //   new chipyard.config.AbstractConfig)

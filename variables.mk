@@ -3,7 +3,11 @@
 # - to use the help text, your Makefile should have a 'help' target that just
 #   prints all the HELP_LINES
 #########################################################################################
-HELP_COMPILATION_VARIABLES =
+HELP_COMPILATION_VARIABLES = \
+"   LSF=1                  = run java commands with lsf clusters" \
+"   JAVA_DEBUG=1           = enable java remote debug support for debugging tools such as chisel3&firrtl" \
+"   CIRCT=1                = enable circt compiler"
+
 HELP_PROJECT_VARIABLES = \
 "   SUB_PROJECT            = use the specific subproject default variables [$(SUB_PROJECT)]" \
 "   SBT_PROJECT            = the SBT project that you should find the classes/packages in [$(SBT_PROJECT)]" \
@@ -106,9 +110,14 @@ endif
 #########################################################################################
 # path to rocket-chip and testchipip
 #########################################################################################
-ROCKETCHIP_DIR      = $(base_dir)/generators/rocket-chip
-TESTCHIP_DIR        = $(base_dir)/generators/testchipip
-CHIPYARD_FIRRTL_DIR = $(base_dir)/tools/firrtl
+ROCKETCHIP_DIR       = $(base_dir)/generators/rocket-chip
+ROCKETCHIP_RSRCS_DIR = $(ROCKETCHIP_DIR)/src/main/resources
+TESTCHIP_DIR         = $(base_dir)/generators/testchipip
+TESTCHIP_RSRCS_DIR   = $(TESTCHIP_DIR)/src/main/resources
+CHIPYARD_FIRRTL_DIR  = $(base_dir)/tools/firrtl
+CHIPYARD_RSRCS_DIR   = $(base_dir)/generators/chipyard/src/main/resources
+IOCELL_RSRCS_DIR     = $(base_dir)/tools/barstools/iocell/src/main/resources/barstools/iocell/
+
 
 #########################################################################################
 # names of various files needed to compile and run things
@@ -136,6 +145,7 @@ HARNESS_SMEMS_CONF ?= $(build_dir)/$(long_name).harness.mems.conf
 HARNESS_SMEMS_FIR  ?= $(build_dir)/$(long_name).harness.mems.fir
 
 # files that contain lists of files needed for VCS or Verilator simulation
+SIM_FILE_REQS =
 sim_files              ?= $(build_dir)/sim_files.f
 sim_top_blackboxes     ?= $(build_dir)/firrtl_black_box_resource_files.top.f
 sim_harness_blackboxes ?= $(build_dir)/firrtl_black_box_resource_files.harness.f
@@ -145,8 +155,12 @@ sim_common_files       ?= $(build_dir)/sim_files.common.f
 #########################################################################################
 # java arguments used in sbt
 #########################################################################################
-JAVA_HEAP_SIZE ?= 8G
+JAVA_HEAP_SIZE ?= 32G
 JAVA_OPTS ?= -Xmx$(JAVA_HEAP_SIZE) -Xss8M -XX:MaxPermSize=256M
+
+ifeq ($(JAVA_DEBUG),1)
+	override JAVA_OPTS += -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=0.0.0.0:5005
+endif
 
 #########################################################################################
 # default sbt launch command
@@ -164,7 +178,12 @@ override SCALA_BUILDTOOL_DEPS += $(SBT_THIN_CLIENT_TIMESTAMP)
 SBT_CLIENT_FLAG = --client
 endif
 
-SBT ?= java $(JAVA_OPTS) -jar $(ROCKETCHIP_DIR)/sbt-launch.jar $(SBT_OPTS) $(SBT_CLIENT_FLAG)
+LSF_CMD ?=
+ifeq ($(LSF),1)
+	LSF_CMD = bsub -q fast -Ip
+endif
+
+SBT ?= $(LSF_CMD) java $(JAVA_OPTS) -jar $(ROCKETCHIP_DIR)/sbt-launch.jar $(SBT_OPTS) $(SBT_CLIENT_FLAG)
 SBT_NON_THIN ?= $(subst $(SBT_CLIENT_FLAG),,$(SBT))
 
 define run_scala_main
@@ -208,11 +227,17 @@ rocketchip_vsrc_dir = $(ROCKETCHIP_DIR)/src/main/resources/vsrc
 #########################################################################################
 # sources needed to run simulators
 #########################################################################################
+ifeq ($(CIRCT),1)
+sim_vsrcs = \
+	$(TOP_FILE) \
+	$(TOP_SMEMS_FILE)
+else
 sim_vsrcs = \
 	$(TOP_FILE) \
 	$(HARNESS_FILE) \
 	$(TOP_SMEMS_FILE) \
 	$(HARNESS_SMEMS_FILE)
+endif
 
 #########################################################################################
 # assembly/benchmark variables

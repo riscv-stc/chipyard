@@ -216,6 +216,11 @@ lazy val boom = (project in file("generators/boom"))
   .dependsOn(rocketchip)
   .settings(libraryDependencies ++= rocketLibDeps.value)
   .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.lihaoyi" %% "os-lib" % "0.7.8"
+    )
+  )
 
 lazy val cva6 = (project in file("generators/cva6"))
   .dependsOn(rocketchip)

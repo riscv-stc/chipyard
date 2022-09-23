@@ -35,6 +35,7 @@ case class MyCoreParams(
   val useAtomicsOnlyForIO: Boolean = false // copied from Rocket
   val useCompressed: Boolean = true
   override val useVector: Boolean = false
+  override val useMatrix: Boolean = false
   val useSCIE: Boolean = false
   val useRVE: Boolean = false
   val mulDiv: Option[MulDivParams] = Some(MulDivParams()) // copied from Rocket
